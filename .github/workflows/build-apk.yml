@@ -1,26 +1,23 @@
-name: Build & Publish Release APK
+name: Build Android APK
 
-on:
-  push:
-    tags:
-      - '*'
+on: [push]
 
 jobs:
-  Gradle:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-    - name: checkout code
-      uses: actions/checkout@v2
-    - name: setup jdk
-      uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - name: Make Gradle executable
-      run: chmod +x ./gradlew
-    - name: Build Release APK
-      run: ./gradlew assembleRelease
-    - name: Releasing using Hub
-      uses: sangatdesai/release-apk@main
-      env:
-       GITHUB_TOKEN: ${{ secrets.TOKEN }}
-       APP_FOLDER: app
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Build APK with Buildozer
+        uses: Artemis-Sera/buildozer-action@v1
+        with:
+          command: buildozer -v android debug
+          subfolder: .
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifacts-action@v3
+        with:
+          name: app-debug
+          path: bin/*.apk

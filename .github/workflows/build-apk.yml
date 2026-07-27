@@ -1,42 +1,26 @@
-name: Build APK
+name: Build & Publish Release APK
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:
+    tags:
+      - '*'
 
 jobs:
-  build:
+  Gradle:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Cache buildozer global directory
-        uses: actions/cache@v4
-        with:
-          path: ~/.buildozer
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
-
-      - name: Cache buildozer local (project) directory
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: buildozer-local-${{ hashFiles('buildozer.spec') }}
-
-      - name: Build APK with Buildozer (Docker)
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}":/home/user/hostcwd \
-            kivy/buildozer:latest \
-            android debug
-
-      - name: Show bin directory (debug aid)
-        if: always()
-        run: ls -la bin || echo "no bin directory produced"
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ops-log-apk
-          path: bin/*.apk
+    - name: checkout code
+      uses: actions/checkout@v2
+    - name: setup jdk
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Make Gradle executable
+      run: chmod +x ./gradlew
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
+    - name: Releasing using Hub
+      uses: sangatdesai/release-apk@main
+      env:
+       GITHUB_TOKEN: ${{ secrets.TOKEN }}
+       APP_FOLDER: app

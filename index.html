@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SysAdmin Productivity Tracker</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --accent-cyan: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-yellow: #facc15;
+            --accent-red: #f87171;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        sidebar {
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Top Header Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card h4 {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        /* Active Task / Timer Section */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Forms */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.75rem;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .btn {
+            background-color: var(--accent-cyan);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-red);
+            color: #fff;
+        }
+
+        /* Task List Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        /* Category Badges */
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-incident { background-color: rgba(248, 113, 113, 0.2); color: var(--accent-red); }
+        .badge-maintenance { background-color: rgba(250, 204, 21, 0.2); color: var(--accent-yellow); }
+        .badge-automation { background-color: rgba(74, 222, 128, 0.2); color: var(--accent-green); }
+        .badge-project { background-color: rgba(56, 189, 248, 0.2); color: var(--accent-cyan); }
+
+        /* Timer Block */
+        .timer-display {
+            font-size: 2.5rem;
+            font-family: monospace;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--accent-cyan);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <sidebar>
+        <div class="logo">
+            <span>⚙️</span> SysAdmin Tracker
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item active">Dashboard</li>
+            <li class="nav-item">Active Log</li>
+            <li class="nav-item">Automation Metrics</li>
+            <li class="nav-item">Reports</li>
+        </ul>
+    </sidebar>
+
+    <main>
+        <!-- Top Level Productivity Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>Hours Tracked Today</h4>
+                <div class="value" id="stat-hours">0.0 hrs</div>
+            </div>
+            <div class="stat-card">
+                <h4>Incidents Resolved</h4>
+                <div class="value" id="stat-incidents" style="color: var(--accent-red);">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>Automation Ratio</h4>
+                <div class="value" id="stat-automation" style="color: var(--accent-green);">0%</div>
+            </div>
+            <div class="stat-card">
+                <h4>Tasks Completed</h4>
+                <div class="value" id="stat-completed">0</div>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="dashboard-layout">
+            
+            <!-- Left Panel: Log New Task & Task List -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <!-- Quick Log Form -->
+                <div class="card">
+                    <div class="card-header">Log Completed Work</div>
+                    <form id="task-form">
+                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label>Task Description / Ticket ID</label>
+                                <input type="text" id="task-desc" placeholder="e.g., INC-4092: Patching Core Switches" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="task-category">
+                                    <option value="incident">Incident / Unplanned</option>
+                                    <option value="maintenance">Routine Maintenance</option>
+                                    <option value="automation">Scripting / Automation</option>
+                                    <option value="project">Project Work</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label>Duration (Minutes)</label>
+                                <input type="number" id="task-duration" placeholder="45" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label>System / Target</label>
+                                <input type="text" id="task-target" placeholder="e.g., AWS, AD, K8s">
+                            </div>
+                            <div class="form-group" style="justify-content: flex-end;">
+                                <button type="submit" class="btn" style="width: 100%;">Save Task</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="card">
+                    <div class="card-header">Today's Activity Log</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Target</th>
+                                <th>Duration</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-table-body">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Stopwatch Timer -->
+            <div class="card" style="height: fit-content;">
+                <div class="card-header">Live Stopwatch Tracker</div>
+                <div class="timer-display" id="timer">00:00:00</div>
+                
+                <div class="form-group">
+                    <label>Current Task Focus</label>
+                    <input type="text" id="timer-label" placeholder="What are you working on?">
+                </div>
+
+                <div class="timer-controls">
+                    <button class="btn" id="start-btn" onclick="startTimer()">Start</button>
+                    <button class="btn btn-danger" id="stop-btn" onclick="stopTimer()" disabled>Stop & Save</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // State Management
+        let tasks = JSON.parse(localStorage.getItem('sysadmin_tasks')) || [];
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTasks();
+            updateStats();
+        });
+
+        // Form Submit Handler
+        document.getElementById('task-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const desc = document.getElementById('task-desc').value;
+            const category = document.getElementById('task-category').value;
+            const duration = parseInt(document.getElementById('task-duration').value);
+            const target = document.getElementById('task-target').value || 'N/A';
+
+            addTask({ desc, category, duration, target, timestamp: new Date().toISOString() });
+            
+            // Reset Form
+            e.target.reset();
+        });
+
+        function addTask(task) {
+            tasks.unshift(task);
+            saveAndRender();
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveAndRender();
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('sysadmin_tasks', JSON.stringify(tasks));
+            renderTasks();
+            updateStats();
+        }
+
+        function renderTasks() {
+            const tbody = document.getElementById('task-table-body');
+            tbody.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge badge-${task.category}">${task.category.toUpperCase()}</span></td>
+                    <td>${escapeHtml(task.desc)}</td>
+                    <td><code>${escapeHtml(task.target)}</code></td>
+                    <td>${task.duration} mins</td>
+                    <td><button onclick="deleteTask(${index})" style="background:none; border:none; color:var(--accent-red); cursor:pointer;">✕</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateStats() {
+            const totalMins = tasks.reduce((sum, t) => sum + t.duration, 0);
+            const hours = (totalMins / 60).toFixed(1);
+            
+            const incidents = tasks.filter(t => t.category === 'incident').length;
+            const automationMins = tasks.filter(t => t.category === 'automation').reduce((sum, t) => sum + t.duration, 0);
+            
+            const autoRatio = totalMins > 0 ? Math.round((automationMins / totalMins) * 100) : 0;
+
+            document.getElementById('stat-hours').innerText = `${hours} hrs`;
+            document.getElementById('stat-incidents').innerText = incidents;
+            document.getElementById('stat-automation').innerText = `${autoRatio}%`;
+            document.getElementById('stat-completed').innerText = tasks.length;
+        }
+
+        // Live Timer Functions
+        function startTimer() {
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('stop-btn').disabled = false;
+            
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            
+            const label = document.getElementById('timer-label').value || 'Unlabeled Timer Task';
+            const durationMins = Math.max(1, Math.round(secondsElapsed / 60));
+
+            addTask({
+                desc: label,
+                category: 'project',
+                duration: durationMins,
+                target: 'Live Timer',
+                timestamp: new Date().toISOString()
+            });
+
+            // Reset Timer State
+            secondsElapsed = 0;
+            updateTimerDisplay();
+            document.getElementById('timer-label').value = '';
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+        }
+
+        function updateTimerDisplay() {
+            const hrs = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
+            const secs = String(secondsElapsed % 60).padStart(2, '0');
+            document.getElementById('timer').innerText = `${hrs}:${mins}:${secs}`;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
+

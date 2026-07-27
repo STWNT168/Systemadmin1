@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "stwnt168.github",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "stwnt168.github",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "lang": "en"
+}

@@ -1,20 +1,11 @@
 [app]
-title = Ops Log
-package.name = opslog
-package.domain = com.lalit
+title = Work Tracker
+package.name = worktracker
+package.domain = org.worktracker
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
+source.include_exts = py,png,jpg,kv,atlas,json
 version = 1.0.0
 requirements = python3,kivy
 orientation = portrait
 fullscreen = 0
-
-android.permissions =
-android.api = 34
-android.minapi = 24
-android.ndk = 25b
 android.archs = arm64-v8a
-
-[buildozer]
-log_level = 2
-warn_on_root = 1

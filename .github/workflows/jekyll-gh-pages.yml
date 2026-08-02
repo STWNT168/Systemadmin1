@@ -22,7 +22,7 @@ jobs:
 
     - name: Create Cordova Project
       run: |
-        cordova create app com.example.htmlapp HtmlApp
+        cordova create app com.example.opslog Opslog
         cp index.html app/www/
          cp manifest.json app/www/
         cp icon.svg app/www/

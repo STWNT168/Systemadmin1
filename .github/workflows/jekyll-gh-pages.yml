@@ -23,8 +23,10 @@ jobs:
     - name: Create Cordova Project
       run: |
         cordova create app com.example.htmlapp HtmlApp
-        cp -r www/* app/www/
-        cp config.xml app/
+        cp index.html app/www/
+         cp manifest.json app/www/
+        cp icon.svg app/www/
+        
 
     - name: Add Android
       run: |
